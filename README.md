@@ -2,6 +2,10 @@
 
 The Codeforces Problem Finder is a web application built using React that allows users to find problems solved by Codeforces users based on their ratings.
 
+<p align="center">
+  <img src="public/logo512.png" alt="Codeforces Problem Finder" style="width: 200px; height: 200px;">
+</p>
+
 ## Usage
 
 1. Visit the application [here](https://cf-problem-finder.vercel.app/).
