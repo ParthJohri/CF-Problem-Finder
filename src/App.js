@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import UserInput from "./components/UserInput";
 import ProblemTable from "./components/ProblemTable";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./components/ProblemTable.css";
 
 function App() {
   const [problems, setProblems] = useState([]);
   const [username, setUsername] = useState("");
-
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const handleUsernameSubmit = (username) => {
     setUsername(username);
 
@@ -20,28 +22,64 @@ function App() {
           console.error(data.status + " : " + data.comment);
         }
       });
+    fetch(`https://codeforces.com/api/user.info?handles=${username}`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "OK") {
+          const user = data.result[0];
+          setFirstName(user.firstName); // Use the state-setting function
+          setLastName(user.lastName); // Use the state-setting function
+        } else {
+          console.error("Failed to fetch user info");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
   };
 
   const processData = (resultArr) => {
-    const processedProblems = resultArr.map((sub) => ({
-      problemId: `${sub.problem.contestId}/${sub.problem.index}`,
-      rating: sub.problem.rating,
-    }));
-    return processedProblems;
+    const processedProblems = resultArr
+      .filter((sub) => sub.verdict === "OK")
+      .map((sub) => ({
+        problemId: `${sub.problem.contestId}/${sub.problem.index}`,
+        rating: sub.problem.rating,
+        name: sub.problem.name,
+      }));
+
+    const uniqueProblemIds = new Set();
+
+    const uniqueProcessedProblems = processedProblems.filter((problem) => {
+      if (!uniqueProblemIds.has(problem.problemId)) {
+        uniqueProblemIds.add(problem.problemId);
+        return true;
+      }
+      return false;
+    });
+
+    return uniqueProcessedProblems;
   };
 
   return (
-    <div className="container-fluid">
+    <div className="container-fluid container">
       <div className="row">
         <div className="col-md-12 text-center">
           <h1>Codeforces Problems</h1>
         </div>
       </div>
-      <div className="row">
-        <div className="col-md-6 offset-md-3">
+      <div className="row container">
+        <div className="col-md-15">
           <UserInput onUsernameSubmit={handleUsernameSubmit} />
           {username && (
-            <h2 className="mt-4"> Problems Solved By: {username}</h2>
+            <h4 className="mt-4" style={{ textAlign: "center" }}>
+              {" "}
+              Problems Solved By:{" "}
+              {firstName
+                ? `${firstName} ${lastName}`
+                : lastName
+                ? lastName
+                : username}
+            </h4>
           )}
           {problems.length > 0 && <ProblemTable problems={problems} />}
         </div>
@@ -52,6 +90,7 @@ function App() {
           href="https://www.linkedin.com/in/parthjohri07"
           target="_blank"
           rel="noopener noreferrer"
+          className="a-style"
         >
           LinkedIn
         </a>{" "}
@@ -60,6 +99,7 @@ function App() {
           href="https://github.com/parthjohri"
           target="_blank"
           rel="noopener noreferrer"
+          className="a-style"
         >
           GitHub
         </a>

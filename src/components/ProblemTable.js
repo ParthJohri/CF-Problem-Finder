@@ -1,16 +1,14 @@
-// src/components/ProblemTable.js
-
 import React, { useState } from "react";
 import "./ProblemTable.css";
 
 function ProblemTable({ problems }) {
   const groupedProblems = {};
 
-  problems.forEach((problem) => {
-    if (!groupedProblems[problem.rating]) {
-      groupedProblems[problem.rating] = [];
+  problems.forEach(({ problemId, rating, name }) => {
+    if (!groupedProblems[rating]) {
+      groupedProblems[rating] = [];
     }
-    groupedProblems[problem.rating].push(problem.problemId);
+    groupedProblems[rating].push({ problemId, name });
   });
 
   const [expandedRating, setExpandedRating] = useState(null);
@@ -34,7 +32,7 @@ function ProblemTable({ problems }) {
                 <h5 className="card-title">Rating: {rating}</h5>
                 <button
                   onClick={() => handleRatingClick(rating)}
-                  className={`btn btn-outline-primary ${
+                  className={`btn btn-outline-dark ${
                     expandedRating === rating ? "active" : ""
                   }`}
                 >
@@ -42,14 +40,15 @@ function ProblemTable({ problems }) {
                 </button>
                 {expandedRating === rating && (
                   <ul className="list-group mt-2">
-                    {groupedProblems[rating].map((problemId) => (
+                    {groupedProblems[rating].map(({ problemId, name }) => (
                       <li key={problemId} className="list-group-item">
                         <a
                           href={`https://codeforces.com/problemset/problem/${problemId}`}
                           target="_blank"
                           rel="noopener noreferrer"
+                          className="custom-link"
                         >
-                          {problemId}
+                          {name}
                         </a>
                       </li>
                     ))}
